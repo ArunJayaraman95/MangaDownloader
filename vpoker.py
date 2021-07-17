@@ -76,9 +76,9 @@ def menu():
     op = int(input("Select Action: "))
     
     
-    valid = 4 if round_bet != 0 else 3
+    valid = 4 if round_bet == 0 else 3
 
-    while op < 1 or op > valid:
+    while int(op) < 1 or int(op) > valid:
         print("Invalid choice pick again")
         print(f"Actions for Player {current().name}")
         print("1: Call")
@@ -161,6 +161,7 @@ while matched == False:
 for player in players:
     player.push()
 
+round_bet = 0
 status()
 
 print("\n\nITS DA FLOP \n\n")
@@ -171,8 +172,11 @@ while matched == False or pCount < len(players):
     menu()
     status()
     n()
+    while current().contribution != round_bet and round_bet == 0:
+      n()
     matcher()
     pCount += 1
+  
 for player in players:
     player.push()
 status()
