@@ -31,20 +31,21 @@ class MainWindow(QDialog):
         self.readConfig()
         self.writeConfig()
 
+
     def exit(self):
         self.writeConfig()
         sys.exit()
+
 
     def startChanged(self):
         if self.startChapter.value() > self.endChapter.value():
             self.endChapter.setValue(self.startChapter.value())
 
+
     def endChanged(self):
         if self.startChapter.value() > self.endChapter.value():
             self.startChapter.setValue(self.endChapter.value())
 
-    def printStuff(self):
-        print("TESTING")
 
     def getMangaOnlyImages(self, imageList):
         return [img for img in imageList if img.has_attr('alt') and "One Punch" in img['alt']]
@@ -80,7 +81,6 @@ class MainWindow(QDialog):
                 os.remove(os.path.join(dir, img))
 
     # TODO: Make .exe file
-    # ? TODO: Add pictures
     # TODO: Write text file to store exportPath and chapter
     # TODO: Type checking
     def downloadChapters(self):
@@ -93,7 +93,7 @@ class MainWindow(QDialog):
         self.chapterLabel.setText("ALL CHAPTERS DOWNLOADED")
         self.cancelButton.setText("Finish")
         self.writeConfig()
-        
+
 
     def writeConfig(self):
         f = open(self.configFileName, "w")
@@ -146,7 +146,11 @@ class MainWindow(QDialog):
         print("Deleted")
         # Move pdf to exportPath
         self.exportPath = self.pathText.text()
-        shutil.move(f'{chapter}.pdf', self.exportPath)
+        try:
+            shutil.move(f'{chapter}.pdf', self.exportPath)
+        except:
+            os.remove(f'{chapter}.pdf')
+            print("Chapter already exists")
         print(f"Moved chapter {chapter}")
 
 
