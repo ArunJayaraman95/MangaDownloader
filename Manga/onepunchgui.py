@@ -33,25 +33,29 @@ class MainWindow(QDialog):
 
 
     def exit(self):
+        """Writes config values and exits the GUI"""
         self.writeConfig()
         sys.exit()
 
 
     def startChanged(self):
+        """Edits end chapter if start > end"""
         if self.startChapter.value() > self.endChapter.value():
             self.endChapter.setValue(self.startChapter.value())
 
 
     def endChanged(self):
+        """Edits start chapter if start > end"""
         if self.startChapter.value() > self.endChapter.value():
             self.startChapter.setValue(self.endChapter.value())
 
 
-    def getMangaOnlyImages(self, imageList):
+    def getMangaOnlyImages(self, imageList: list):
+        """Return images maching certain attributes"""
         return [img for img in imageList if img.has_attr('alt') and "One Punch" in img['alt']]
 
 
-    def writeImages(self, chapter, imageList, nickName):
+    def writeImages(self, chapter: int, imageList: list, nickName: str):
         pageCount = len(imageList)
         
         for index, image in enumerate(imageList):
@@ -74,14 +78,13 @@ class MainWindow(QDialog):
         self.writeConfig()
 
 
-    def deleteTempImages(self, dir):
+    def deleteTempImages(self, dir: str):
         x = os.listdir(dir)
         for img in x:
             if img.endswith(".jpg"):
                 os.remove(os.path.join(dir, img))
 
     # TODO: Make .exe file
-    # TODO: Write text file to store exportPath and chapter
     # TODO: Type checking
     def downloadChapters(self):
         s,e = self.startChapter.value(), self.endChapter.value()
@@ -120,7 +123,7 @@ class MainWindow(QDialog):
         f.close()
 
 
-    def download(self, chapter):
+    def download(self, chapter: int):
 
         url = f"https://ww1.onepunch.online/manga/onepunch-man-chapter-{chapter}/"
         r = requests.get(url)
@@ -135,7 +138,6 @@ class MainWindow(QDialog):
 
         # List of Input file names
         inputFiles = [f'{self.mangaAbbrv}-{chapter}-{i}.jpg' for i in range(0, len(images))]
-        # print(inputFiles)
         outputFile = open(f'{chapter}.pdf', 'wb')
         outputFile.write(converter.convert(inputFiles))
         outputFile.close()
@@ -144,6 +146,7 @@ class MainWindow(QDialog):
 
         self.deleteTempImages(self.tempFolder)
         print("Deleted")
+
         # Move pdf to exportPath
         self.exportPath = self.pathText.text()
         try:
