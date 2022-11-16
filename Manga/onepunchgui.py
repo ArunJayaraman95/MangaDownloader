@@ -56,6 +56,7 @@ class MainWindow(QDialog):
 
 
     def writeImages(self, chapter: int, imageList: list, nickName: str):
+        """Write image contents into jpg files"""
         pageCount = len(imageList)
         
         for index, image in enumerate(imageList):
@@ -66,11 +67,12 @@ class MainWindow(QDialog):
             with open(name.replace(' ','-') + '.jpg', 'wb') as f:
                 im = requests.get(source)
                 f.write(im.content)
-            self.pageLabel.setText(f"Page {index + 1}/{pageCount}")
-            self.pageProgress.setValue((index + 1)*100//pageCount)
+            self.pageLabel.setText(f"Page {index + 1} / {pageCount}")
+            self.pageProgress.setValue((index + 1) * 100 // pageCount)
 
 
     def browseFiles(self):
+        """Allow user to open file explorer and select a directory"""
         # fname=QFileDialog.getOpenFileName(self, 'Open file', 'C:\\', 'Images (*.png, *.xmp *.jpg)')
         fname = QFileDialog.getExistingDirectory(self, 'Open File')
         print(fname)
@@ -79,6 +81,7 @@ class MainWindow(QDialog):
 
 
     def deleteTempImages(self, dir: str):
+        """Delete images in directory provided"""
         x = os.listdir(dir)
         for img in x:
             if img.endswith(".jpg"):
@@ -87,21 +90,27 @@ class MainWindow(QDialog):
     # TODO: Make .exe file
     # TODO: Type checking
     def downloadChapters(self):
+        """Download a range of chapters and update progress bars"""
         s,e = self.startChapter.value(), self.endChapter.value()
         self.chapterLabel.setText(f"Downloading Chapter 1 of {e - s + 1}")
+
         for i in range(self.startChapter.value(), self.endChapter.value() + 1):
             self.download(i)
             self.chapterLabel.setText(f"Downloading Chapter {i - s + 2} of {e - s + 1}")
             self.chapterProgress.setValue((i - s + 1) * 100 // (e - s + 1))
+
         self.chapterLabel.setText("ALL CHAPTERS DOWNLOADED")
         self.cancelButton.setText("Finish")
         self.writeConfig()
 
 
     def writeConfig(self):
+        """Write exportPath and next chapter to config file"""
         f = open(self.configFileName, "w")
+        
         self.exportPath = self.pathText.text()
         f.write(f'{self.exportPath}$$${str(self.endChapter.value() + 1)}')
+
         f.close()
 
 
@@ -124,7 +133,7 @@ class MainWindow(QDialog):
 
 
     def download(self, chapter: int):
-
+        """Download a given chapter to export path with webscraping"""
         url = f"https://ww1.onepunch.online/manga/onepunch-man-chapter-{chapter}/"
         r = requests.get(url)
         soup = bs(r.text, "html.parser")
