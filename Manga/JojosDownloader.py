@@ -9,16 +9,20 @@ import img2pdf as converter
 import shutil
 
 class MainWindow(QDialog):
+    
+    
     def __init__(self):
         super(MainWindow, self).__init__()
         loadUi("JojoGui.ui", self)
+        self.label.setText("     Jojolion Downloader")
 
         # Variables
         self.tempFolder = os.getcwd()
-        self.exportPath = r"C:/Users/ripar/Documents/Books/SBR/"
+        self.exportPath = r"C:/Users/ripar/Documents/Books/Jojolion/"
         self.mangaAbbrv = "Jojo"
         self.defaultChapter = 1
         self.configFileName = "ConfigJojo.txt"
+        self.alternator = True
         self.pathText.setText(self.exportPath)
 
         # Connections
@@ -28,9 +32,20 @@ class MainWindow(QDialog):
         self.startChapter.valueChanged.connect(self.startChanged)
         self.endChapter.valueChanged.connect(self.endChanged)
 
+        self.testingButton.clicked.connect(self.printHi)
+
         self.readConfig()
         self.writeConfig()
-
+        
+    def printHi(self):
+        if self.alternator:
+            self.testingButton.setStyleSheet("background-color: yellow")
+            self.testingButton.setText("I'm yellow")
+        else:
+            self.testingButton.setStyleSheet("background-color: lime")
+            self.testingButton.setText("I'm green")
+        self.alternator = not self.alternator
+        print("What's going on")
 
     def exit(self):
         """Writes config values and exits the GUI"""
@@ -52,7 +67,14 @@ class MainWindow(QDialog):
 
     def getMangaOnlyImages(self, imageList: list):
         """Return images maching certain attributes"""
-        return [img for img in imageList if img.has_attr('src') and "blogspot" in img['src']]
+        # ? Debugging the HTML
+        # for img in imageList:
+        #     print(img.has_attr('id'))
+        #     if img.has_attr('id'):
+        #         print(img['id'])
+        #         print("Src:", img['data-src'])
+        # return []
+        return [img for img in imageList if img.has_attr('data-src') and "WP-manga/data" in img['data-src']]
 
 
     def writeImages(self, chapter: int, imageList: list, nickName: str):
@@ -61,7 +83,7 @@ class MainWindow(QDialog):
         
         for index, image in enumerate(imageList):
             name = f'{nickName}-{chapter}-{index}'
-            source = image['src']
+            source = image['data-src']
             
             print(f'...retrieving Pg #{index}...')
             with open(name.replace(' ','-') + '.jpg', 'wb') as f:
@@ -138,7 +160,7 @@ class MainWindow(QDialog):
 
     def download(self, chapter: int):
         """Download a given chapter to export path with webscraping"""
-        url = f"https://steel-ball-run.com/manga/jojos-bizarre-adventure-steel-ball-run-chapter-{chapter}/"
+        url = f"https://mangaonlineteam.com/manga/jojos-bizarre-adventure-part-8-jojolion-full-color/chapter-{chapter}/"
         r = requests.get(url)
         soup = bs(r.text, "html.parser")
 
